@@ -7,7 +7,7 @@
 let audioCtx = null;
 let oscL = null, oscR = null;
 let gainL = null, gainR = null;
-let merger = null, masterGain = null;
+let merger = null, masterGain = null, panL = null, panR = null;
 let playMode = "stop";
 
 let freqInputL, freqInputR, freqSliderL, freqSliderR;
@@ -22,22 +22,19 @@ let cyclesL = 1, cyclesR = 1;
 let smoothL = 0, smoothR = 0;
 let normalizeL = false, normalizeR = false;
 
-function setup() {
-  createCanvas(windowWidth, windowHeight);
-  const bgCanvas = document.querySelector("canvas");
-  if (bgCanvas) {
-    bgCanvas.style.position = "fixed";
-    bgCanvas.style.left = "0";
-    bgCanvas.style.top = "0";
-    bgCanvas.style.zIndex = "-1";
-    bgCanvas.style.pointerEvents = "none";
-  }
+// Standalone initialization: no p5.js dependency, so the page can render
+// even if an external library CDN is unavailable.
+function initializeSignalGenerator() {
   createStyle();
   createAppContainer();
   buildUI();
 }
 
-function draw() { background(245); }
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeSignalGenerator, { once: true });
+} else {
+  initializeSignalGenerator();
+}
 
 function createStyle() {
   const style = document.createElement("style");
@@ -487,4 +484,4 @@ function updateVolume() {
 function clampFrequency(f) { return Math.min(20000,Math.max(20,f)); }
 function sliderToFrequency(value) { const minF=20,maxF=20000,t=value/1000; return minF*Math.pow(maxF/minF,t); }
 function frequencyToSlider(frequency) { frequency=clampFrequency(frequency); const t=Math.log(frequency/20)/Math.log(20000/20); return Math.round(t*1000); }
-function windowResized() { resizeCanvas(windowWidth,windowHeight); }
+
